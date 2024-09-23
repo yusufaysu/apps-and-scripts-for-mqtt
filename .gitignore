@@ -1,0 +1,3 @@
+# .gitignore
+server/fcmserviceaccount.json
+.env
