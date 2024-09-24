@@ -55,6 +55,10 @@ class App(ctk.CTk):
         self.entryMessage = ctk.CTkTextbox(master=frame, font=("Roboto Mono", 20), width=500, height=200)
         self.entryMessage.pack(pady=12, padx=10)
 
+        checkbox_var = ctk.BooleanVar()
+        checkbox = ctk.CTkCheckBox(master=frame, text="Toplu mesaj", variable=checkbox_var)
+        checkbox.pack(pady=12, padx=10)
+
         sendButton = ctk.CTkButton(master=frame, text="Gönder", command=self.sendMsg)
         sendButton.pack(pady=12, padx=10)
 
@@ -88,14 +92,16 @@ class App(ctk.CTk):
         if lisans.startswith("02.01.") == 0 or len(lisans) != 19:
             self.showLog("Yanlış lisans tipi", "orange")
 
-        if lisans=="" or mesaj=="":
+        elif lisans=="" or mesaj=="":
             self.showLog("Boş bir kutu bırakmayınız", "orange")
+        
+        else:
+            self.mqtt_client.publish(f"/{lisans}/devListener", f"""{{"com":"message", "text":"{mesaj}"}}""")
+            self.showLog(f"'{lisans}' lisanslı daireye '{mesaj}' mesajını gönderdiniz.", "blue")
 
-        self.mqtt_client.publish(f"/{lisans}/devListener", f"""{{"com":"message", "msg":"{mesaj}"}}""")
-
-    def alarmWindow(self, blok_no, daire_no):
+    def alarmWindow(self, blok_no, daire_no, ircom):
         try:
-            alarmWindow = NewWindow(blok_no, daire_no)
+            alarmWindow = NewWindow(blok_no, daire_no, ircom)
             alarmWindow.mainloop()
         except:
             pass
@@ -114,12 +120,13 @@ class App(ctk.CTk):
             self.status_light.configure(text="Offline")
 
 class NewWindow(ctk.CTk):
-    def __init__(self, blok_no, daire_no, master=None):
+    def __init__(self, blok_no, daire_no, ircom, master=None):
         super().__init__(master)
         self.title(f"Pencere - Blok {blok_no}, Daire {daire_no}")
         self.geometry("400x300")
         self.blok_no = blok_no
         self.daire_no = daire_no
+        self.ircom = ircom
         self.setup_ui()
 
         self.alarm_playing = True
@@ -133,7 +140,7 @@ class NewWindow(ctk.CTk):
 
     def setup_ui(self):
         # Blok numarasını ve daire numarasını ekrana yazdır
-        label1 = ctk.CTkLabel(self, text="!!!Su baskını alarmı!!!", font=("Arial", 16), text_color="red")
+        label1 = ctk.CTkLabel(self, text=f"!!!{self.ircom} alarmı!!!", font=("Arial", 16), text_color="red")
         label1.pack(pady=10)
 
         label2 = ctk.CTkLabel(self, text=f"Blok No: {self.blok_no}\nDaire No: {self.daire_no}", font=("Arial", 16))
@@ -143,18 +150,7 @@ class NewWindow(ctk.CTk):
         close_button = ctk.CTkButton(self, text="Kapat", command=self.close_window)
         close_button.pack()
 
-    def play_alarm(self):
-        # Play the alarm sound in a loop
-        while True:
-            #playsound.playsound("alarm.mp3", block=True)
-            if(self.alarm_playing == False):
-                break
-
-    def stop_alarm(self):
-        self.alarm_playing = False
-
     def close_window(self):
-        self.stop_alarm()
         self.destroy()
 
 class Client():
@@ -198,7 +194,7 @@ class Client():
             #alarm durumu
             if irval == "alarm" and lisans.startswith("02.01"):
                 app.showLog(f"blok -> {blok_no} daire -> {daire_no} alarm -> {ircom} baskın alarmı", "red")
-                app.alarmWindow(blok_no, daire_no)
+                app.alarmWindow(blok_no, daire_no, ircom)
         except Exception as e:
             pass
 
