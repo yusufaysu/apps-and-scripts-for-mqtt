@@ -3,7 +3,7 @@ import paho.mqtt.client as mqtt
 import json
 import time
 #import threading
-from pygame import mixer  # Load the popular external library
+from pygame import mixer
 import os
 import sys
 
@@ -93,13 +93,21 @@ class App(ctk.CTk):
         lisans = self.entryBlok.get()
         mesaj = self.entryMessage.get("1.0", "end-1c")
 
+        # Toplu mesaj
         if self.checkbox_var.get():
-            print(f"Checkbox is checked: {self.checkbox_var.get()}")
+            if mesaj == "":
+                self.showLog("Boş mesaj gönderilemez", "orange")
+            else:
+                self.showLog(f"DİKKAT! Tüm dairelere mesaj gönderiliyor.", "blue")
+                for topic in retain_topics:
+                    self.mqtt_client.publish(f"/{topic}/devListener", f"""{{"com":"message", "text":"{mesaj}"}}""")
+                self.showLog(f"DİKKAT! Tüm dairelere mesaj gönderildi.", "blue")
+        # Tekli mesaj
         else:
-            if lisans.startswith("02.01.") == 0 or len(lisans) != 19:
-                self.showLog("Yanlış lisans tipi", "orange")
-            elif lisans=="" or mesaj=="":
+            if lisans=="" or mesaj=="":
                 self.showLog("Boş bir kutu bırakmayınız", "orange")
+            elif lisans.startswith("02.01.") == 0 or len(lisans) != 19:
+                self.showLog("Yanlış lisans tipi", "orange")
             else:
                 self.mqtt_client.publish(f"/{lisans}/devListener", f"""{{"com":"message", "text":"{mesaj}"}}""")
                 self.showLog(f"'{lisans}' lisanslı daireye '{mesaj}' mesajını gönderdiniz.", "blue")
@@ -194,9 +202,10 @@ class Client():
             lisans = topic_arr[1]
             channel = topic_arr[2]
 
+            #/02.01 ile başlayıp /devWill ile biten tüm topiclerin lisansını retain_topics'e koy
             if topic.startswith("/02.01.") and topic.endswith("/devWill"):
                 if topic not in retain_topics:
-                    retain_topics.append(topic)
+                    retain_topics.append(lisans)
 
             parsed_json= json.loads(payload)
             #alarm durumu
