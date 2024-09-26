@@ -1,20 +1,17 @@
 import os
 import paho.mqtt.client as mqtt
-from dotenv import find_dotenv, load_dotenv
 
-env_file_path = find_dotenv()
-load_dotenv(env_file_path)
-
-mqtt_broker = os.getenv("MQTT_BROKER")
-mqtt_port = int(os.getenv("MQTT_PORT"))
-client = mqtt.Client()
+mqtt_broker = "icemqtt.com.tr"
+mqtt_port = 1883
+client = mqtt.Client(callback_api_version=2)
 client.connect(mqtt_broker, mqtt_port)
 
 print("\033[1;31mmesaj gönderildi\033[0m")
 
-client.publish("/02.01.+/devListener", """{"com":"message","text":"sa"}""")
-#client.publish("/02.01.6579C727.1111/devSender", """{"com":"event","id":7,"durum":{"stat":false,"status":4,"color":7,"ircom":"Su","irval":"alarm","counter":11,"temp":3,"act":true}}""")
+#client.publish("/02.01.6579C727.1111/devWill", """{"com":"sen","no":"99"}""")
+client.publish("/02.01.6579C727.1111/devSender", """{"com":"event","id":7,"durum":{"stat":false,"status":4,"color":7,"ircom":"Su","irval":"alarm","counter":11,"temp":3,"act":true}}""")
 #client.publish("/02.01.650099B3.516D/devSender", """{"com":"event","id":7,"durum":{"stat":true,"status":4,"color":7,"ircom":"Water","irval":"alarm","act":true}}""")
+#client.publish("/02.01.+/devListener", """{"com":"message","text":"sa"}""")
 client.disconnect()
 
 

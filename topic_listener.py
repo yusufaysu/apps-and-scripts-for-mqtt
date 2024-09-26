@@ -1,14 +1,10 @@
 import os
 import paho.mqtt.client as mqtt
-from dotenv import find_dotenv, load_dotenv
 
-env_file_path = find_dotenv()
-load_dotenv(env_file_path)
+broker_address = "icemqtt.com.tr"
+port = 1883
 
-broker_address = os.getenv("MQTT_BROKER")
-port = int(os.getenv("MQTT_PORT"))
-
-client = mqtt.Client()
+client = mqtt.Client(callback_api_version=2)
 client.connect(broker_address, port, 60)
 
 
