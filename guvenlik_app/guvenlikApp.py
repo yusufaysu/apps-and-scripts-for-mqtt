@@ -90,8 +90,8 @@ class App(ctk.CTk):
 
     def sendMsg(self):
         global retain_topics
-        lisans = self.entryBlok.get()
-        mesaj = self.entryMessage.get("1.0", "end-1c")
+        lisans	= self.entryBlok.get()
+        mesaj	= self.entryMessage.get("1.0", "end-1c")
 
         # Toplu mesaj
         if self.checkbox_var.get():
@@ -104,7 +104,7 @@ class App(ctk.CTk):
                 self.showLog(f"DİKKAT! Tüm dairelere mesaj gönderildi.", "blue")
         # Tekli mesaj
         else:
-            if lisans=="" or mesaj=="":
+            if lisans == "" or mesaj == "":
                 self.showLog("Boş bir kutu bırakmayınız", "orange")
             elif lisans.startswith("02.01.") == 0 or len(lisans) != 19:
                 self.showLog("Yanlış lisans tipi", "orange")
@@ -137,12 +137,12 @@ class NewWindow(ctk.CTk):
         super().__init__(master)
         self.title(f"Pencere - Blok {blok_no}, Daire {daire_no}")
         self.geometry("400x300")
-        self.blok_no = blok_no
-        self.daire_no = daire_no
-        self.ircom = ircom
+        self.blok_no	= blok_no
+        self.daire_no	= daire_no
+        self.ircom		= ircom
         self.setup_ui()
 
-        self.alarm_playing = True
+        self.alarm_playing	= True
 
         self.protocol("WM_DELETE_WINDOW", self.close_window)
         mixer.music.play()
@@ -168,14 +168,14 @@ class NewWindow(ctk.CTk):
 
 class Client():
     def __init__(self, app, broker="icemqtt.com.tr", port=1883):
-        self.broker = broker
-        self.port = port
-        self.app = app
-        self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+        self.broker	= broker
+        self.port	= port
+        self.app	= app
+        self.client	= mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 
-        self.client.on_connect = self.on_connect
-        self.client.on_message = self.on_message
-        self.client.on_disconnect = self.on_disconnect
+        self.client.on_connect		= self.on_connect
+        self.client.on_message		= self.on_message
+        self.client.on_disconnect	= self.on_disconnect
 
     def on_connect(self, client, userdata, flags, rc, i):
         app.showLog("Server connection is "+str(rc) + ".", "green")
@@ -195,12 +195,12 @@ class Client():
 
     def on_message(self, client, userdata, message):
         try:
-            global retain_topics
-            topic = message.topic
-            payload = message.payload.decode("utf-8")
-            topic_arr = topic.split('/')
-            lisans = topic_arr[1]
-            channel = topic_arr[2]
+            global	retain_topics
+            topic		= message.topic
+            payload		= message.payload.decode("utf-8")
+            topic_arr	= topic.split('/')
+            lisans		= topic_arr[1]
+            channel		= topic_arr[2]
 
             #/02.01 ile başlayıp /devWill ile biten tüm topiclerin lisansını retain_topics'e koy
             if topic.startswith("/02.01.") and topic.endswith("/devWill"):
@@ -211,10 +211,10 @@ class Client():
             #alarm durumu
             if channel == "devSender":
                 try:
-                    blok_no = parsed_json["durum"]["counter"]
-                    daire_no = parsed_json["durum"]["temp"]
-                    ircom = parsed_json["durum"]["ircom"]
-                    irval = parsed_json["durum"]["irval"]
+                    blok_no		= parsed_json["durum"]["counter"]
+                    daire_no	= parsed_json["durum"]["temp"]
+                    ircom		= parsed_json["durum"]["ircom"]
+                    irval		= parsed_json["durum"]["irval"]
                     if irval == "alarm" and lisans.startswith("02.01"):
                         app.showLog(f"blok -> {blok_no} daire -> {daire_no} alarm -> {ircom} baskın alarmı", "red")
                         app.alarmWindow(blok_no, daire_no, ircom)
@@ -223,8 +223,8 @@ class Client():
             #acil durum 
             elif channel == "devSender":
                 try:
-                    sen_com = parsed_json["com"]
-                    sen_no = parsed_json["no"]
+                    sen_com		= parsed_json["com"]
+                    sen_no		= parsed_json["no"]
                     if sen_com == "sen" and sen_no == "99":
                         app.showLog(f"{lisans} lisanslı dairede acil durum var!!!", "red")
                         mixer.music.play()
@@ -240,10 +240,10 @@ class Client():
         self.client.publish(topic, message)
 
 if __name__ == "__main__":
-    app = App(mqtt_client=None)  # Temporary None, to be updated later
-    mqtt_client = Client(app)
-    app.mqtt_client = mqtt_client  # Assign the MQTT client to the App
-    connection_status = mqtt_client.connect()
+    app					= App(mqtt_client=None)  # Temporary None, to be updated later
+    mqtt_client			= Client(app)
+    app.mqtt_client		= mqtt_client  # Assign the MQTT client to the App
+    connection_status	= mqtt_client.connect()
     mqtt_client.start()
     app.toggle_status_light(connection_status)
     app.mainloop()
