@@ -38,39 +38,46 @@ def addDb(lisans, ircom):
 
 def on_message(client, userdata, message):
     topic       = message.topic
-    payload     = message.payload
-    topic_arr   = topic.split('/')
-    lisans      = topic_arr[1]
-    channel     = topic_arr[2]
-    topic       = message.topic
     payload     = message.payload.decode("utf-8")
+    
+    if not payload:
+        print("Boş mesaj alındı, işlenmedi.")
+        return
 
     try:
         parsed_json = json.loads(payload)
-        com         = parsed_json.get('com')
-        durum       = parsed_json.get('durum')
-        
-        if 'durum' in parsed_json and 'status' in parsed_json['durum']:
-            status = parsed_json['durum']['status']
-        else:
-            status = None
-
-        if 'durum' in parsed_json and 'irval' in parsed_json['durum']:
-            irval = parsed_json['durum']['irval']
-        else:
-            irval = None
-
-        if 'durum' in parsed_json and 'ircom' in parsed_json['durum']:
-            ircom = parsed_json['durum']['ircom']
-        else:
-            ircom = None
-
     except json.JSONDecodeError:
-        print("Invalid JSON.")
+        print("Geçersiz JSON formatı.")
+        return
+    
+    # Diğer işlemler burada devam eder
+    topic_arr   = topic.split('/')
+    lisans      = topic_arr[1]
+    channel     = topic_arr[2]
+
+    com         = parsed_json.get('com')
+    durum       = parsed_json.get('durum')
+
+    if 'durum' in parsed_json and 'status' in parsed_json['durum']:
+        status = parsed_json['durum']['status']
+    else:
+        status = None
+
+    if 'durum' in parsed_json and 'irval' in parsed_json['durum']:
+        irval = parsed_json['durum']['irval']
+    else:
+        irval = None
+
+    if 'durum' in parsed_json and 'ircom' in parsed_json['durum']:
+        ircom = parsed_json['durum']['ircom']
+    else:
+        ircom = None
 
     #print(com, "-", status, "-", irval)
-    if com == "event" and status == 4 and irval == "alarm":
-        addDb(lisans, ircom)
+    if (com is not None) and (status is not None) and (irval is not None):
+        if com == "event" and status == 4 and irval == "alarm":
+            addDb(lisans, ircom)
+
 
 client.on_message = on_message
 client.subscribe("/#")
