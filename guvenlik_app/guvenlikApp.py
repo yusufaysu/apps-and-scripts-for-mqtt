@@ -21,7 +21,7 @@ def resource_path(relative_path):
 ctk.set_appearance_mode("dark")  # uygulamanın arka teması
 ctk.set_default_color_theme("dark-blue")  # uygulamanın renk teması
 mixer.init()
-mixer.music.load(resource_path('assets/alarm.mp3'))
+mixer.music.load(resource_path('assets\\alarm.mp3'))
 retain_topics = []
 
 class App(ctk.CTk):

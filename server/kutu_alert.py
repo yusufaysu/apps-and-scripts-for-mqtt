@@ -65,8 +65,8 @@ def send_notification(lisans, title, message):
         response = messaging.send_each_for_multicast(multicast_message) # sendMulticast(multicast_message) This method is deprecated.
         
         # Başarı ve hata durumlarını yazdır
-        success_count = 0
-        failure_count = 0
+        success_count	= 0
+        failure_count	= 0
         for idx, resp in enumerate(response.responses):
             if resp.success:
                 success_count += 1
@@ -146,8 +146,8 @@ def send_auth(topic, lisans, key, user):
             print(msg)
             client.publish(topic, msg)
         else:
-            aadm = "false"
-            aact = "false"
+            aadm	= "false"
+            aact	= "false"
             print(rec[0], rec[1])
             if rec[0]==1:
                 aadm="true"
@@ -169,7 +169,7 @@ def parseAndRun(topic, payload):
     send_topic	= "/" + lisans + "/devServer"
 
     try:
-        parsed_json = json.loads(payload)
+        parsed_json	= json.loads(payload)
         com			= parsed_json.get('com')
         fcm			= parsed_json.get('fcm')
         key			= parsed_json.get('key')
@@ -210,7 +210,7 @@ def parseAndRun(topic, payload):
 
 def on_message(client, userdata, message):
     topic	= message.topic
-    payload = message.payload.decode("utf-8")
+    payload	= message.payload.decode("utf-8")
     parseAndRun(topic, payload)
 
 client.on_message = on_message

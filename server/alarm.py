@@ -8,8 +8,8 @@ from dotenv import find_dotenv, load_dotenv
 env_file_path = find_dotenv()
 load_dotenv(env_file_path)
 
-broker_address = os.getenv("MQTT_BROKER")
-port = int(os.getenv("MQTT_PORT"))
+broker_address	= os.getenv("MQTT_BROKER")
+port			= int(os.getenv("MQTT_PORT"))
 
 client = mqtt.Client()
 client.connect(broker_address, port, 60)
@@ -37,8 +37,8 @@ def addDb(lisans, ircom):
 
 
 def on_message(client, userdata, message):
-    topic       = message.topic
-    payload     = message.payload.decode("utf-8")
+    topic		= message.topic
+    payload		= message.payload.decode("utf-8")
     
     if not payload:
         print("Boş mesaj alındı, işlenmedi.")
