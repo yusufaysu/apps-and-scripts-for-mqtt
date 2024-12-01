@@ -21,14 +21,14 @@ def resource_path(relative_path):
 ctk.set_appearance_mode("dark")  # uygulamanın arka teması
 ctk.set_default_color_theme("dark-blue")  # uygulamanın renk teması
 mixer.init()
-mixer.music.load(resource_path('assets\\alarm.mp3'))
+mixer.music.load(resource_path('assets/alarm.mp3'))
 retain_topics = []
 
 class App(ctk.CTk):
     def __init__(self, mqtt_client):
         super().__init__()
         self.title("iCe Duyuru Paneli")
-        self.iconbitmap(resource_path('assets\\favicon.ico'))
+        self.iconbitmap(resource_path('assets/favicon.ico'))
         self.mqtt_client = mqtt_client  # Store the Client instance
         self.setup_ui()
 
